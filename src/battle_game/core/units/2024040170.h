@@ -18,6 +18,7 @@ class ZZ_Tank : public Unit {
 
   float turret_rotation_{0.0f};
   uint32_t fire_count_down_{0};
+  uint32_t fire_times_{0};
   uint32_t mine_count_down_{0};
   uint32_t last_movement_{0};//1 for W, -1 for S.
   float movement_count_{0};

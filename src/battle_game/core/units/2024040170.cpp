@@ -19,15 +19,21 @@ ZZ_Tank::ZZ_Tank(GameCore *game_core, uint32_t id, uint32_t player_id)
       /* Tank Body */
       tank_body_model_index = mgr->RegisterModel(
           {
-              {{-0.8f, 0.8f}, {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}},
-              {{-0.8f, -1.0f}, {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}},
-              {{0.8f, 0.8f}, {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}},
-              {{0.8f, -1.0f}, {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}},
               // distinguish front and back
-              {{0.6f, 1.0f}, {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}},
-              {{-0.6f, 1.0f}, {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}},
+              {{-0.8f, 0.8f}, {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}},
+              {{-0.8f, -0.8f}, {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}},
+              {{-0.4f, 0.8f}, {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}},
+              {{-0.4f, -0.8f}, {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}},
+              {{-0.4f, 0.4f}, {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}},
+              {{-0.4f, -0.6f}, {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}},
+              {{0.4f, 0.4f}, {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}},
+              {{0.4f, -0.6f}, {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}},
+              {{0.8f, 0.8f}, {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}},
+              {{0.8f, -0.8f}, {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}},
+              {{0.4f, 0.8f}, {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}},
+              {{0.4f, -0.8f}, {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}},
           },
-          {0, 1, 2, 1, 2, 3, 0, 2, 5, 2, 4, 5});
+          {0, 1, 2, 1, 2, 3, 4, 5, 6, 5, 6, 7, 8, 9, 10, 9, 10, 11});
     }
 
     {
@@ -41,7 +47,7 @@ ZZ_Tank::ZZ_Tank(GameCore *game_core, uint32_t id, uint32_t player_id)
         theta *= glm::pi<float>() * 2.0f;
         auto sin_theta = std::sin(theta);
         auto cos_theta = std::cos(theta);
-        turret_vertices.push_back({{sin_theta * 0.5f, cos_theta * 0.5f},
+        turret_vertices.push_back({{sin_theta * 0.3f, cos_theta * 0.3f},
                                    {0.0f, 0.0f},
                                    {0.7f, 0.7f, 0.7f, 1.0f}});
         turret_indices.push_back(i);
@@ -159,9 +165,18 @@ void ZZ_Tank::Fire() {
       auto &input_data = player->GetInputData();
       if (input_data.mouse_button_down[GLFW_MOUSE_BUTTON_LEFT]) {
         auto velocity = Rotate(glm::vec2{0.0f, 20.0f}, turret_rotation_);
-        GenerateBullet<bullet::CannonBall>(
-            position_ + Rotate({0.0f, 1.2f}, turret_rotation_),
-            turret_rotation_, GetDamageScale(), velocity);
+        if(fire_times_ <= 1) {
+          GenerateBullet<bullet::CannonBall>(
+              position_ + Rotate({0.0f, 1.2f}, turret_rotation_),
+              turret_rotation_, GetDamageScale(), velocity);
+          fire_times_ ++;
+        }
+        else {
+          GenerateBullet<bullet::StrengthenedCannonBall>(
+              position_ + Rotate({0.0f, 1.2f}, turret_rotation_),
+              turret_rotation_, GetDamageScale(), velocity);
+          fire_times_ = 0;
+        }
         fire_count_down_ = kTickPerSecond;  // Fire interval 1 second.
       }
     }
